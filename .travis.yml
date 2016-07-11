@@ -23,7 +23,9 @@ env:
 matrix:
   include:
     - php: 7.0
-      env: MOODLE_BRANCH=MOODLE_30_STABLE COVERAGE=true
+      env: MOODLE_BRANCH=MOODLE_30_STABLE
+    - php: 7.0
+      env: MOODLE_BRANCH=MOODLE_31_STABLE COVERAGE=true
     - php: 7.0
       env: MOODLE_BRANCH=master
 
@@ -63,4 +65,5 @@ script:
   - moodle-plugin-ci behat
 
 after_script:
-  - if [ "$COVERAGE" = true ]; then ocular code-coverage:upload --format=php-clover coverage.clover; fi
+  - if [ "$COVERAGE" = true ]; then wget https://scrutinizer-ci.com/ocular.phar; fi
+  - if [ "$COVERAGE" = true ]; then php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi

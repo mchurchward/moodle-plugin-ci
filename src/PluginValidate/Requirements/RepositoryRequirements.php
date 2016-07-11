@@ -15,17 +15,17 @@ namespace Moodlerooms\MoodlePluginCI\PluginValidate\Requirements;
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\FileTokens;
 
 /**
- * Block plugin requirements.
+ * Repository requirements.
  *
  * @copyright Copyright (c) 2015 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class BlockRequirements extends GenericRequirements
+class RepositoryRequirements extends GenericRequirements
 {
     public function getRequiredFiles()
     {
         return array_merge(parent::getRequiredFiles(), [
-            $this->plugin->component.'.php',
+            'lib.php',
             'db/access.php',
         ]);
     }
@@ -33,7 +33,17 @@ class BlockRequirements extends GenericRequirements
     public function getRequiredClasses()
     {
         return [
-            FileTokens::create($this->plugin->component.'.php')->mustHave($this->plugin->component),
+            FileTokens::create('lib.php')->mustHave($this->plugin->component),
         ];
+    }
+
+    public function getRequiredStrings()
+    {
+        return parent::getRequiredStrings()->mustHave($this->plugin->name.':view');
+    }
+
+    public function getRequiredCapabilities()
+    {
+        return FileTokens::create('db/access.php')->mustHave('repository/'.$this->plugin->name.':view');
     }
 }
