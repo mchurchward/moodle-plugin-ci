@@ -13,6 +13,7 @@
 namespace Moodlerooms\MoodlePluginCI\PluginValidate\Requirements;
 
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\FileTokens;
+use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\MethodTokens;
 
 /**
  * Block plugin requirements.
@@ -28,6 +29,13 @@ class BlockRequirements extends GenericRequirements
             $this->plugin->component.'.php',
             'db/access.php',
         ]);
+    }
+
+    public function getRequiredMethods()
+    {
+        return [
+            MethodTokens::create($this->plugin->component.'.php', $this->plugin->component)->mustHave('init'),
+        ];
     }
 
     public function getRequiredClasses()

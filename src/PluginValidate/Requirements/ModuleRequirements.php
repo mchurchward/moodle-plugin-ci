@@ -33,6 +33,7 @@ class ModuleRequirements extends GenericRequirements
             'lib.php',
             'view.php',
             'index.php',
+            'mod_form.php',
             'db/install.xml',
             'db/access.php',
         ]);
@@ -41,8 +42,28 @@ class ModuleRequirements extends GenericRequirements
     public function getRequiredFunctions()
     {
         return [
-            FileTokens::create('lib.php')->mustHave($this->plugin->name.'_add_instance')->mustHave($this->plugin->name.'_update_instance'),
-            FileTokens::create('db/upgrade.php')->mustHave('xmldb_'.$this->plugin->name.'_upgrade'),
+            FileTokens::create('lib.php')
+                ->mustHave($this->plugin->name.'_add_instance')
+                ->mustHave($this->plugin->name.'_update_instance')
+                ->mustHave($this->plugin->name.'_delete_instance'),
+            FileTokens::create('db/upgrade.php')
+                ->mustHave('xmldb_'.$this->plugin->name.'_upgrade'),
+        ];
+    }
+
+    public function getRequiredVariables()
+    {
+        return [
+            'version.php' => [
+                'plugin->version' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\LNumber'],
+                'plugin->release' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\String_'],
+                'plugin->requires' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\LNumber'],
+                'plugin->component' => (object)['value' => 'mod_'.$this->plugin->name, 'type' => 'PhpParser\Node\Scalar\String_'],
+                'plugin->maturity' => (object)['value' => 'MATURITY_STABLE', 'type' => 'PhpParser\Node\Expr\ConstFetch'],
+            ],
+            'db/log.php' => [
+                'logs' => (object)['value' => null, 'type' => null],
+            ],
         ];
     }
 
@@ -50,7 +71,16 @@ class ModuleRequirements extends GenericRequirements
     {
         return FileTokens::create($this->getLangFile())
             ->mustHaveAny(['modulename', 'pluginname'])
-            ->mustHave($this->plugin->name.':addinstance');
+            ->mustHave($this->plugin->name.':addinstance')
+            ->mustHave('modulenameplural')
+            ->mustHave('pluginadministration');
+     }
+
+    public function getRequiredClasses()
+    {
+        return [
+            FileTokens::create('mod_form.php')->mustHave('mod_'.$this->plugin->name.'_mod_form'),
+        ];
     }
 
     public function getRequiredCapabilities()

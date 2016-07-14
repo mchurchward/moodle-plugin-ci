@@ -20,6 +20,7 @@ use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\Node\Stmt\ClassMethod;
 
 /**
  * Filter parsed code.
@@ -76,6 +77,37 @@ class StatementFilter
         }
 
         return $names;
+    }
+
+    /**
+     * @param array $statements
+     *
+     * @return ClassMethod[]
+     */
+    public function filterMethods(array $statements, $classname)
+    {
+        foreach ($this->filterClasses($statements) as $class) {
+            if ($class->name == $classname) {
+                return array_filter($class->stmts, function ($statement) {
+                    return $statement instanceof ClassMethod;
+                });
+            }
+        }
+    }
+
+    /**
+     * @param array $statements
+     *
+     * @return ClassMethod[]
+     */
+    public function filterMethodNames(array $statements, $classname)
+    {
+        $methodnames = [];
+        foreach ($this->filterMethods($statements, $classname) as $method) {
+            $methodnames[] = $method->name;
+        }
+
+        return $methodnames;
     }
 
     /**

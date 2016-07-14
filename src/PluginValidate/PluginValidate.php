@@ -14,9 +14,11 @@ namespace Moodlerooms\MoodlePluginCI\PluginValidate;
 
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\CapabilityFinder;
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\ClassFinder;
+use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\MethodFinder;
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\FileTokens;
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\FinderInterface;
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\FunctionFinder;
+use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\VariableFinder;
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\LangFinder;
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\TableFinder;
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\TablePrefixFinder;
@@ -95,9 +97,15 @@ class PluginValidate
     {
         foreach ($fileTokens->tokens as $token) {
             if ($token->hasTokenBeenFound()) {
-                $this->addSuccess(sprintf('In %s, found %s %s', $fileTokens->file, $type, implode(' OR ', $token->tokens)));
+                $message = method_exists($fileTokens, 'successmessage') ?
+                    $fileTokens->successmessage(implode(' OR ', $token->tokens)) :
+                    sprintf('In %s, found %s %s', $fileTokens->file, $type, implode(' OR ', $token->tokens));
+                $this->addSuccess($message);
             } else {
-                $this->addError(sprintf('In %s, failed to find %s %s', $fileTokens->file, $type, implode(' OR ', $token->tokens)));
+                $message = method_exists($fileTokens, 'errormessage') ?
+                    $fileTokens->errormessage(implode(' OR ', $token->tokens)) :
+                    sprintf('In %s, failed to find %s %s', $fileTokens->file, $type, implode(' OR ', $token->tokens));
+                $this->addError($message);
             }
         }
     }
@@ -109,7 +117,9 @@ class PluginValidate
     {
         $this->findRequiredFiles($this->requirements->getRequiredFiles());
         $this->findRequiredTokens(new FunctionFinder(), $this->requirements->getRequiredFunctions());
+        $this->findRequiredVariables(new VariableFinder(), $this->requirements->getRequiredVariables());
         $this->findRequiredTokens(new ClassFinder(), $this->requirements->getRequiredClasses());
+        $this->findRequiredTokens(new MethodFinder(), $this->requirements->getRequiredMethods());
         $this->findRequiredTokens(new LangFinder(), [$this->requirements->getRequiredStrings()]);
         $this->findRequiredTokens(new CapabilityFinder(), [$this->requirements->getRequiredCapabilities()]);
         $this->findRequiredTokens(new TableFinder(), [$this->requirements->getRequiredTables()]);
@@ -128,6 +138,31 @@ class PluginValidate
                 $this->addSuccess(sprintf('Found required file: %s', $file));
             } else {
                 $this->addError(sprintf('Failed to find required file: %s', $file));
+            }
+        }
+    }
+
+    public function findRequiredVariables(FinderInterface $finder, array $requiredfilevariables) {
+        foreach ($requiredfilevariables as $filename => $requiredvariables) {
+            $filetokens = new FileTokens($filename);
+            foreach ($requiredvariables as $variablename => $details) {
+                $filetokens->mustHave($variablename);
+            }
+
+            try {
+                $file = $this->plugin->directory.'/'.$filetokens->file;
+                if (!file_exists($file)) {
+                    $this->addWarning(sprintf('Skipping validation of missing or optional file: %s', $filetokens->file));
+                } else {
+                    $finder->variabledetails = $requiredvariables;
+                    $messages = $finder->findTokens($file, $filetokens);
+                    $this->addMessagesFromTokens($finder->getType(), $filetokens);
+                    if (!empty($messages)) {
+                        $this->addError(sprintf('In %s, '.$messages, $filetokens->file));
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->addError($e->getMessage());
             }
         }
     }

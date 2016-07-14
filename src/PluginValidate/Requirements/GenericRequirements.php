@@ -44,7 +44,17 @@ class GenericRequirements extends AbstractRequirements
         ];
     }
 
+    public function getRequiredVariables()
+    {
+        return [];
+    }
+
     public function getRequiredClasses()
+    {
+        return [];
+    }
+
+    public function getRequiredMethods()
     {
         return [];
     }
