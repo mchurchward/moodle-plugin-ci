@@ -157,8 +157,14 @@ class PluginValidate
                     $finder->variabledetails = $requiredvariables;
                     $messages = $finder->findTokens($file, $filetokens);
                     $this->addMessagesFromTokens($finder->getType(), $filetokens);
-                    if (!empty($messages)) {
-                        $this->addError(sprintf('In %s, '.$messages, $filetokens->file));
+                    if (!empty($messages['error'])) {
+                        $this->addError(sprintf('In %s, '.$messages['error'], $filetokens->file));
+                    }
+                    if (!empty($messages['success'])) {
+                        $this->addSuccess(sprintf('In %s, '.$messages['success'], $filetokens->file));
+                    }
+                    if (!empty($messages['warning'])) {
+                        $this->addWarning(sprintf('In %s, '.$messages['warning'], $filetokens->file));
                     }
                 }
             } catch (\Exception $e) {

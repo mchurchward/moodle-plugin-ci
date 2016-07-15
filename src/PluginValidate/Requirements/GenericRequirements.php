@@ -46,7 +46,15 @@ class GenericRequirements extends AbstractRequirements
 
     public function getRequiredVariables()
     {
-        return [];
+        return [
+            'version.php' => [
+                'plugin->version' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\LNumber||PhpParser\Node\Scalar\DNumber'],
+                'plugin->release' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\String_'],
+                'plugin->requires' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\LNumber||PhpParser\Node\Scalar\DNumber'],
+                'plugin->component' => (object)['value' => $this->plugin->component, 'type' => 'PhpParser\Node\Scalar\String_'],
+                'plugin->maturity' => (object)['value' => 'MATURITY_STABLE', 'type' => 'PhpParser\Node\Expr\ConstFetch'],
+            ],
+        ];
     }
 
     public function getRequiredClasses()

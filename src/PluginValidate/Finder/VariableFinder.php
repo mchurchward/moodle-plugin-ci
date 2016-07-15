@@ -32,11 +32,12 @@ class VariableFinder extends AbstractParserFinder
 
     public function findTokens($file, FileTokens $fileTokens)
     {
-        $messages = '';
+        $messages = ['success' => '', 'error' => '', 'warning' => ''];
         $statements = $this->parser->parseFile($file);
 
         foreach ($this->filter->filterAssignments($statements) as $assign) {
-            $message = '';
+            $errmessage = '';
+            $sucmessage = '';
             $check = false;
             if ($assign->var instanceof PropertyFetch) {
                 $variable = $assign->var->var->name.'->'.$assign->var->name;
@@ -47,22 +48,37 @@ class VariableFinder extends AbstractParserFinder
             }
             if ($check) {
                 $fileTokens->compare($variable);
-                $type = $this->variabledetails[$variable]->type;
-                if (($type !== null) && (get_class($assign->expr) != $type)) {
-                    throw new \RuntimeException(sprintf('The $'.$variable.' variable is not the correct type', $fileTokens->file));
+                if ($this->variabledetails[$variable]->type !== null) {
+                    $types = explode('||', $this->variabledetails[$variable]->type);
+                    $found = false;
+                    foreach ($types as $type) {
+                        if (get_class($assign->expr) == $type) {
+                            $found = true;
+                        }
+                    }
+                    if (!$found) {
+                        $errmessage = 'the $'.$variable.' variable is not the correct type';
+                    }
                 }
                 if ($this->variabledetails[$variable]->value !== null) {
                     if ($this->variabledetails[$variable]->type == 'PhpParser\Node\Expr\ConstFetch') {
                         if ($this->variabledetails[$variable]->value != $assign->expr->name->parts[0]) {
-                            $message = 'the $'.$variable.' variable has an incorrect value';
+                            $errmessage .= (empty($errmessage) ? 'the $'.$variable.' variable ' : ' and ') . 'is not the value ' .
+                                $this->variabledetails[$variable]->value;
                         }
                     } else if ($this->variabledetails[$variable]->value != $assign->expr->value) {
-                        $message = 'the $'.$variable.' variable has an incorrect value';
+                        $errmessage .= (empty($errmessage) ? 'the $'.$variable.' variable ' : ' and ') . 'is not the value ' .
+                            $this->variabledetails[$variable]->value;
                     }
                 }
+                if (empty($errmessage)) {
+                    $sucmessage = 'the $'.$variable.' has the correct type and value';
+                }
             }
-            if (!empty($message)) {
-                $messages .= empty($messages) ? $message : ",\nand " . $message;
+            if (!empty($errmessage)) {
+                $messages['error'] .= empty($messages['error']) ? $errmessage : ",\nand " . $errmessage;
+            } else if (!empty($sucmessage)) {
+                $messages['success'] .= empty($messages['success']) ? $sucmessage : ",\nand " . $sucmessage;
             }
         }
         return $messages;

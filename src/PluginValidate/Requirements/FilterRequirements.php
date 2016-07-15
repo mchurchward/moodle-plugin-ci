@@ -13,6 +13,7 @@
 namespace Moodlerooms\MoodlePluginCI\PluginValidate\Requirements;
 
 use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\FileTokens;
+use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\MethodTokens;
 
 /**
  * Filter plugin requirements.
@@ -39,5 +40,12 @@ class FilterRequirements extends GenericRequirements
     public function getRequiredStrings()
     {
         return FileTokens::create($this->getLangFile())->mustHave('filtername');
+    }
+
+    public function getRequiredMethods()
+    {
+        return [
+            MethodTokens::create('filter.php', $this->plugin->component)->mustHave('filter'),
+        ];
     }
 }

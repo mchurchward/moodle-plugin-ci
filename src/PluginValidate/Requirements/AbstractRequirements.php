@@ -74,6 +74,13 @@ abstract class AbstractRequirements
     abstract public function getRequiredMethods();
 
     /**
+     * Required plugin variables.
+     *
+     * @return FileTokens[]
+     */
+    abstract public function getRequiredVariables();
+
+    /**
      * Required plugin string definitions.
      *
      * @return FileTokens

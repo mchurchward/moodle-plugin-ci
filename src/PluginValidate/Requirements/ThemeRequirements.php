@@ -12,6 +12,8 @@
 
 namespace Moodlerooms\MoodlePluginCI\PluginValidate\Requirements;
 
+use Moodlerooms\MoodlePluginCI\PluginValidate\Finder\FileTokens;
+
 /**
  * Theme plugin requirements.
  *
@@ -25,5 +27,20 @@ class ThemeRequirements extends GenericRequirements
         return array_merge(parent::getRequiredFiles(), [
             'config.php',
         ]);
+    }
+
+    public function getRequiredVariables()
+    {
+        return array_merge(parent::getRequiredVariables(), [
+            'config.php' => [
+                'THEME->name' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\String_'],
+                'THEME->parents' => (object)['value' => null, 'type' => 'PhpParser\Node\Expr\Array_'],
+            ],
+        ]);
+    }
+
+    public function getRequiredStrings()
+    {
+        return FileTokens::create($this->getLangFile())->mustHave('pluginname')->mustHave('choosereadme');
     }
 }

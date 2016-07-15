@@ -53,18 +53,11 @@ class ModuleRequirements extends GenericRequirements
 
     public function getRequiredVariables()
     {
-        return [
-            'version.php' => [
-                'plugin->version' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\LNumber'],
-                'plugin->release' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\String_'],
-                'plugin->requires' => (object)['value' => null, 'type' => 'PhpParser\Node\Scalar\LNumber'],
-                'plugin->component' => (object)['value' => 'mod_'.$this->plugin->name, 'type' => 'PhpParser\Node\Scalar\String_'],
-                'plugin->maturity' => (object)['value' => 'MATURITY_STABLE', 'type' => 'PhpParser\Node\Expr\ConstFetch'],
-            ],
+        return array_merge(parent::getRequiredVariables(), [
             'db/log.php' => [
                 'logs' => (object)['value' => null, 'type' => null],
             ],
-        ];
+        ]);
     }
 
     public function getRequiredStrings()
