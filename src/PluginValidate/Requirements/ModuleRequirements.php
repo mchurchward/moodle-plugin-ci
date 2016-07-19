@@ -36,6 +36,11 @@ class ModuleRequirements extends GenericRequirements
             'mod_form.php',
             'db/install.xml',
             'db/access.php',
+            'backup/moodle2/backup_'.$this->plugin->name.'_activity_task.class.php',
+            'backup/moodle2/backup_'.$this->plugin->name.'_settingslib.php',
+            'backup/moodle2/backup_'.$this->plugin->name.'_stepslib.php',
+            'backup/moodle2/restore_'.$this->plugin->name.'_activity_task.class.php',
+            'backup/moodle2/restore_'.$this->plugin->name.'_stepslib.php',
         ]);
     }
 
