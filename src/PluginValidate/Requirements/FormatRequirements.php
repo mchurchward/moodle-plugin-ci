@@ -26,6 +26,8 @@ class FormatRequirements extends GenericRequirements
     {
         return array_merge(parent::getRequiredFiles(), [
             'format.php',
+            'lib.php',
+            'renderer.php',
         ]);
     }
 
