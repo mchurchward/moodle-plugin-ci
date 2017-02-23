@@ -33,7 +33,7 @@ class TestSuiteInstallerTest extends \PHPUnit_Framework_TestCase
         $this->tempDir   = sys_get_temp_dir().'/moodle-plugin-ci/TestSuiteInstallerTest'.time();
         $this->pluginDir = $this->tempDir.'/plugin';
 
-        $phpunit = <<<XML
+        $phpunit = <<<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit>
 </phpunit>
@@ -92,7 +92,7 @@ XML;
         );
 
         $this->assertNotEmpty($installer->getBehatInstallProcesses());
-        $this->assertCount(5, $installer->getPostInstallProcesses());
+        $this->assertCount(3, $installer->getPostInstallProcesses());
 
         $fs = new Filesystem();
         $fs->remove($this->pluginDir.'/tests/behat');
@@ -110,12 +110,12 @@ XML;
         );
 
         $this->assertNotEmpty($installer->getUnitTestInstallProcesses());
-        $this->assertCount(5, $installer->getPostInstallProcesses());
+        $this->assertCount(3, $installer->getPostInstallProcesses());
 
         $fs = new Filesystem();
         $fs->remove($this->pluginDir.'/tests/lib_test.php');
 
         $this->assertEmpty($installer->getUnitTestInstallProcesses());
-        $this->assertCount(3, $installer->getPostInstallProcesses());
+        $this->assertCount(1, $installer->getPostInstallProcesses());
     }
 }

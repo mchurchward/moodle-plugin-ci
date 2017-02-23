@@ -51,6 +51,11 @@ class MoodleInstaller extends AbstractInstaller
     /**
      * @var string
      */
+    private $repo;
+
+    /**
+     * @var string
+     */
     private $branch;
 
     /**
@@ -63,15 +68,17 @@ class MoodleInstaller extends AbstractInstaller
      * @param AbstractDatabase $database
      * @param Moodle           $moodle
      * @param MoodleConfig     $config
+     * @param string           $repo
      * @param string           $branch
      * @param string           $dataDir
      */
-    public function __construct(Execute $execute, AbstractDatabase $database, Moodle $moodle, MoodleConfig $config, $branch, $dataDir)
+    public function __construct(Execute $execute, AbstractDatabase $database, Moodle $moodle, MoodleConfig $config, $repo, $branch, $dataDir)
     {
         $this->execute  = $execute;
         $this->database = $database;
         $this->moodle   = $moodle;
         $this->config   = $config;
+        $this->repo     = $repo;
         $this->branch   = $branch;
         $this->dataDir  = $dataDir;
     }
@@ -80,7 +87,7 @@ class MoodleInstaller extends AbstractInstaller
     {
         $this->getOutput()->step('Cloning Moodle');
 
-        $process = new Process(sprintf('git clone --depth=1 --branch %s git://github.com/moodle/moodle %s', $this->branch, $this->moodle->directory));
+        $process = new Process(sprintf('git clone --depth=1 --branch %s %s %s', $this->branch, $this->repo, $this->moodle->directory));
         $process->setTimeout(null);
         $this->execute->mustRun($process);
 
